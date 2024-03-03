@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -16,6 +17,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    // create new user
+    public User create(User user) {
+        return (User) userRepository.save(user);
+    }
 
 //random users generator( use once)
 
@@ -29,23 +34,46 @@ public class UserService {
 //       return userRepository.saveAll(users);
 //    }
 
+    // gets all users
     public List<User> getUsers(){
         return userRepository.findAll();
     }
 
-//    public List<Comment> userComments(int userId){
-//        User findUser = userRepository.findById(userId).orElseThrow();
-//        return findUser.getComments();
-//    }
+    // get user by id
+    public Optional<User> findById(Integer user_id) {
+        return userRepository.findById(user_id);
+    }
 
-    public List<User> deleteUser(int userId){
-        userRepository.deleteById(userId);
+    // Update user by id
+    public User updateUser(Integer user_id, User updatedUser) {
+        Optional<User> optionalUser = userRepository.findById(user_id);
+
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            // Update the fields you want to change
+            existingUser.setUsername(updatedUser.getUsername());
+            existingUser.setEmail(updatedUser.getEmail());
+            // Update other fields as needed
+
+            // Save and return the updated user
+            return userRepository.save(existingUser);
+        } else {
+            // Handle the case where the user with the given id is not found
+            // You can throw an exception, return a specific response, etc.
+            // For simplicity, let's throw an IllegalArgumentException
+            throw new IllegalArgumentException("User not found with id: " + user_id);
+        }
+    }
+
+    // Delete user by id
+    public List<User> deleteUser(int user_id){
+        userRepository.deleteById(user_id);
         return userRepository.findAll();
     }
 
-    public User create(User user){
-       return userRepository.save(user);
-    }
-
+    //    public List<Comment> userComments(int userId){
+//        User findUser = userRepository.findById(userId).orElseThrow();
+//        return findUser.getComments();
+//    }
 
 }
